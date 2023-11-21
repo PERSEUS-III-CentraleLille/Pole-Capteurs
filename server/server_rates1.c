@@ -35,9 +35,11 @@ data_lines DataConvert(char * lien) { // Fonction de conversion des fichiers txt
     FILE *fichier = fopen(lien, "r");
 
     // Vérification de l'ouverture du fichier
-    if (!fichier) {
-        perror("Erreur lors de l'ouverture du fichier");
-        exit(EXIT_FAILURE);
+    if (fichier != NULL) {
+        //pas de problème
+    }
+    else{
+        printf("Erreur lors de l'ouverture du fichier");
     }
 
     // Initialisations
@@ -50,14 +52,28 @@ data_lines DataConvert(char * lien) { // Fonction de conversion des fichiers txt
     int c2 = 0; // Compteur de colonnes
     int c3 = 0; // Compteur annexe
 
+    //Allocation mémoire initiale
+    data = (char **) malloc (c1 * sizeof(char *));
+    
+    if (data == NULL) {
+        perror("Erreur d'allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
+
+    data[c1 - 1] = (char *)malloc(c2 * sizeof(char));
+    if (data[c1 - 1] == NULL) {
+        perror("Erreur d'allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
     while (!feof(fichier)) { // Tant qu'on n'est pas arrivés à la fin du fichier
 
-        // Caractère lu actuellement
+        //Récupération du caractère lu
         char currentChar = fgetc(fichier);
+        int currentInt = currentChar;
 
         if (currentChar == '\n' || feof(fichier)) { // Si on a un saut de ligne ou la fin du fichier
-
-            if (c1 == 0) {
+            c1++;
+            if (c1 == 2 {
                 c3 = c2; // Stockage du nombre de colonnes "normal" du fichier
                 dataConverted.sizeColumns = c3;
             } else {
@@ -67,14 +83,18 @@ data_lines DataConvert(char * lien) { // Fonction de conversion des fichiers txt
                     dataConverted.sizeColumns = c3;
                 }
                 if (c2 != c3) {
-                    printf("Il manque %d caractères dans la ligne %d du fichier %s\n", abs(c2 - c3), c1, lien);
+                    printf("Il manque %d caractères dans la ligne %d du fichier %s\n", abs(c2 - c3), c1-1, lien);
                     dataConverted.missingLines++;
                 }
             }
-            c2 = 0; // Retour à la première colonne
+            c2 = 1; // Retour à la première colonne
 
             // Réallocation mémoire pour la nouvelle ligne
             data = (char **)realloc(data, (c1 + 1) * sizeof(char *));
+            if (data == NULL) {
+          perror("Erreur réallocation mémoire");
+          exit(EXIT_FAILURE);
+          }
             data[c1] = (char *)malloc((c3 + 1) * sizeof(char)); // Vous devez allouer c3+1 pour le '\0'
 
             if (!data[c1]) {
@@ -82,13 +102,17 @@ data_lines DataConvert(char * lien) { // Fonction de conversion des fichiers txt
                 exit(EXIT_FAILURE);
             }
 
-            ++c1;
+          
         } else {
+            c2++;
             // Réallocation mémoire pour la nouvelle colonne
-           data[c1 - 1] = (char *) realloc (data[c1 - 1], (c2 + 1) * sizeof(char));
+            data[c1 - 1] = (char *)realloc(data[c1 - 1], c2 * sizeof(char));
+             if (data == NULL) {
+          perror("Erreur réallocation mémoire");
+          exit(EXIT_FAILURE);
+          }
             data[c1 - 1][c2] = currentChar;
-            ++c2;
-
+            
         }
     }
 
@@ -194,6 +218,10 @@ int main(int argc, char **argv) { // Fonction de réception des données
     bind(s, (struct sockaddr *)&loc_addr, sizeof(loc_addr));
     listen(s, 1);
 
+	if (s == -1) { //vérification socket code de Bourdeaud'hui
+		perror("socket"); 
+		exit(1);
+	}
     // Modification du MTU
     int mtu_value = 15620; // Valeur modifiée par le fichier python
     set_l2cap_mtu(s, mtu_value);
@@ -215,6 +243,25 @@ int main(int argc, char **argv) { // Fonction de réception des données
     FILE *resultat = NULL;
     resultat = fopen("result.txt", "w+");
     checkAllocation(resultat);
+//Vérification ouverture des fichiers test et résultat
+  if (fichier != NULL)
+    {
+        // On peut lire et écrire dans le fichier
+    }
+    else
+    {
+        // On affiche un message d'erreur si on veut
+        printf("Impossible d'ouvrir le fichier test.txt");
+    }
+  if (resultat != NULL)
+    {
+        // On peut lire et écrire dans le fichier
+    }
+    else
+    {
+        // On affiche un message d'erreur si on veut
+        printf("Impossible d'ouvrir le fichier resultat.txt");
+    }
 
     // Acceptation de la connexion entre les Raspberry
     client = accept(s, (struct sockaddr *)&rem_addr, &opt);
@@ -305,3 +352,4 @@ int main(int argc, char **argv) { // Fonction de réception des données
 
     return 0;
 }
+
