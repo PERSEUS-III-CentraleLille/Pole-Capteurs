@@ -85,9 +85,10 @@ data_lines DataConvert(char * lien) { // Fonction de conversion des fichiers txt
             ++c1;
         } else {
             // Réallocation mémoire pour la nouvelle colonne
-            data[c1 - 1] = (char *)realloc(data[c1 - 1], (c2 + 1) * sizeof(char));
+           data[c1 - 1] = (char *) realloc (data[c1 - 1], (c2 + 1) * sizeof(char));
             data[c1 - 1][c2] = currentChar;
             ++c2;
+
         }
     }
 
