@@ -96,11 +96,14 @@ int envoie(data_lines data){   //Fonction d'envoi de données
 	//Création du socket dans le but de connecter entre elles les 2 raspberry
 	struct sockaddr_l2 addr = { 0 } ;
 	int s , status ;
-	char dest[18] = "DC:A6:32:78:6C:7E";
+	char dest[18] = "dc:a6:32:78:6d:92";
 	
 	//Allocation du socket
 	s = socket(AF_BLUETOOTH, SOCK_SEQPACKET, BTPROTO_L2CAP) ;
-
+        if (s == -1) { //M. Bourdeaud'hui
+		perror("socket"); 
+		exit(1);
+	}
 	//Modification du MTU
 	int mtu_value = 15620;    										//Valeur modifiée par le fichier python
    	set_l2cap_mtu( s , mtu_value );
@@ -110,7 +113,11 @@ int envoie(data_lines data){   //Fonction d'envoi de données
 	addr.l2_psm = htobs(0x1001);
 	str2ba( dest , &addr.l2_bdaddr ) ;
 	status = connect (s , (struct sockaddr *)&addr , sizeof(addr ));
-
+	
+	if (status == -1) {   //  M.Bourdeau'hui
+		perror("connect"); 
+		exit(2); 
+	}
 	//Initialisations d'envoi
 	int i,j = 0;
 	struct timeval start, end;  									//Initialisation de variables de temps
@@ -156,7 +163,27 @@ int envoie(data_lines data){   //Fonction d'envoi de données
 }
 
 int main(int argc , char ** argv){
+  // Commande pour exécuter bluetoothctl
+    char *bluetoothctl_command = "bluetoothctl";
 
+    // Ouvrir un tube pour envoyer des commandes à bluetoothctl
+    FILE *pipe = popen(bluetoothctl_command, "w");
+
+    if (!pipe) {
+        perror("Erreur lors de l'ouverture du tube.");
+        return 1;
+    }
+
+    // Envoyer les commandes à bluetoothctl
+    fprintf(pipe, "power on\n");
+    fprintf(pipe, "discoverable yes\n");
+    fprintf(pipe, "pair DC:A6:32:78:6D:92\n");
+    fprintf(pipe, "exit\n");
+
+    // Fermer le tube
+    fclose(pipe);
+
+    printf("%d",1);
 	data_lines data;
 	data = DataConvert("/home/pi/Desktop/Numerical_Results_capteur.txt");
 	envoie(data);
