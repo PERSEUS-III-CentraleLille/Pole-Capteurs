@@ -148,6 +148,25 @@ int errorRate(data_lines data1, data_lines data2) {    //Fonction calculant le t
 
 int main(int argc , char ** argv){   //Fonction de réception des données
 
+	 // Commande pour exécuter bluetoothctl
+         char *bluetoothctl_command = "bluetoothctl";
+
+    	 // Ouvrir un tube pour envoyer des commandes à bluetoothctl
+   	 FILE *pipe = popen(bluetoothctl_command, "w");
+
+   	 if (!pipe) {
+       		 perror("Erreur lors de l'ouverture du tube.");
+        	return 1;
+   	 }
+
+   	 // Envoyer les commandes à bluetoothctl
+    	fprintf(pipe, "power on\n");
+    	fprintf(pipe, "discoverable yes\n");
+   	fprintf(pipe, "exit\n");
+
+    	// Fermer le tube
+   	fclose(pipe);
+	
 	//Création du socket de réception et initialisations des données
 	struct sockaddr_l2 loc_addr = { 0 } , rem_addr = { 0 } ; 	// struct de socket
 	int s=0, client , bytes_read ;
