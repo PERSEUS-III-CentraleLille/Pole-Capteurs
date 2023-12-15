@@ -30,18 +30,6 @@ int set_l2cap_mtu( int s , uint16_t mtu ) { //Fonction qui change le MTU d'un so
 	}
 	return status ;
 }
-#include <stdio.h>
-#include <string.h>
-
-#define MAX_LINES 1000  // Choisissez une taille maximale pour le nombre de lignes
-#define MAX_COLUMNS 1000  // Choisissez une taille maximale pour le nombre de colonnes
-
-typedef struct {
-    char data[MAX_LINES][MAX_COLUMNS];  // Utilisation de tableaux fixes
-    int sizeLines;                      // Nombre de lignes de données
-    int sizeColumns;                    // Nombre de colonnes de données
-    int missingLines;                   // Nombre de lignes incomplètes
-} data_lines;
 
 data_lines DataConvert(char *lien) {
     FILE *fichier = fopen(lien, "r");
