@@ -30,8 +30,70 @@ int set_l2cap_mtu( int s , uint16_t mtu ) { //Fonction qui change le MTU d'un so
 	}
 	return status ;
 }
+#include <stdio.h>
+#include <string.h>
 
-data_lines DataConvert ( char * lien ){    	//Fonction de conversion des fichiers txt en char **
+#define MAX_LINES 1000  // Choisissez une taille maximale pour le nombre de lignes
+#define MAX_COLUMNS 1000  // Choisissez une taille maximale pour le nombre de colonnes
+
+typedef struct {
+    char data[MAX_LINES][MAX_COLUMNS];  // Utilisation de tableaux fixes
+    int sizeLines;                      // Nombre de lignes de données
+    int sizeColumns;                    // Nombre de colonnes de données
+    int missingLines;                   // Nombre de lignes incomplètes
+} data_lines;
+
+data_lines DataConvert(char *lien) {
+    FILE *fichier = fopen(lien, "r");
+
+    if (!fichier) {
+        perror("Erreur lors de l'ouverture du fichier");
+        exit(EXIT_FAILURE);
+    }
+
+    data_lines dataConverted;
+    memset(dataConverted.data, 0, sizeof(dataConverted.data)); // Initialisation du tableau à zéro
+
+    int sizeColumns, sizeLines = 0;
+    char currentChar;    
+    int c1 = 0, c2 = 0, c3 = 0;
+
+    while (!feof(fichier)) {
+        currentChar = fgetc(fichier);
+        int currentInt = currentChar;
+
+        if (currentInt == 10) {
+            c1++;
+
+            if (c1 == 1) {
+                c3 = c2;  // Stockage du nombre de colonnes "normal" du fichier
+                dataConverted.sizeColumns = c3;
+            } else {
+                if (c2 == c3 + 1 || c2 == c3 + 2 || c2 == c3 + 3 || c2 == c3 - 1 || c2 == c3 - 2 || c2 == c3 - 3) {
+                    // Présence (ou non) des - dans les données
+                    c3 = c2;  // Stockage du nouveau nombre "normal" de colonnes
+                    dataConverted.sizeColumns = c3;
+                }
+                if (c2 != c3) {
+                    printf("Il manque %d caractères dans la ligne %d du fichier %s\n", abs(c2 - c3), c1 - 1, lien);
+                    dataConverted.missingLines++;
+                }
+            }
+            c2 = 0;  // Retour à la première colonne
+        } else {
+            c2++;
+            dataConverted.data[c1][c2 - 1] = currentChar;
+        }
+    }
+
+    dataConverted.sizeLines = c1;
+    
+    fclose(fichier);
+
+    return dataConverted;
+}
+
+/*data_lines DataConvert ( char * lien ){    	//Fonction de conversion des fichiers txt en char **
 
     //Ouverture du fichier
     FILE * fichier = fopen(lien, "r");
@@ -95,7 +157,7 @@ data_lines DataConvert ( char * lien ){    	//Fonction de conversion des fichier
     dataConverted.sizeLines = c1;
     
     return dataConverted;
-}
+} */
 
 int errorRate(data_lines data1, data_lines data2) {    //Fonction calculant le taux de perte et d'erreur dans la transmission
 
