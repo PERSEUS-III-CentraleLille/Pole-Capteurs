@@ -9,8 +9,8 @@
 #include <sys/time.h>
 #include <sched.h>
 
-#define MAX_LINES 1000  // Choisissez une taille maximale pour le nombre de lignes
-#define MAX_COLUMNS 1000  // Choisissez une taille maximale pour le nombre de colonnes
+#define MAX_LINES 144172  // Choisissez une taille maximale pour le nombre de lignes
+#define MAX_COLUMNS 5 // Choisissez une taille maximale pour le nombre de colonnes
 
 typedef struct {
     char ** data;		//Ensemble de données
