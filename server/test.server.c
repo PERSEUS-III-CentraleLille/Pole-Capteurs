@@ -40,10 +40,18 @@ data_lines DataConvert(char *lien) {
     }
 
     data_lines dataConverted;
-    memset(dataConverted.data, 0, sizeof(dataConverted.data)); // Initialisation du tableau à zéro
+    dataConverted.sizeColumns = 0;
+    dataConverted.sizeLines = 0;
+    dataConverted.missingLines = 0;
+
+    // Allocation de mémoire pour stocker les données
+    dataConverted.data = (char **)malloc(MAX_LINES * sizeof(char *));
+    for (int i = 0; i < MAX_LINES; i++) {
+        dataConverted.data[i] = (char *)malloc(MAX_COLUMNS * sizeof(char));
+    }
 
     int sizeColumns, sizeLines = 0;
-    char currentChar;    
+    char currentChar;
     int c1 = 0, c2 = 0, c3 = 0;
 
     while (!feof(fichier)) {
@@ -75,77 +83,11 @@ data_lines DataConvert(char *lien) {
     }
 
     dataConverted.sizeLines = c1;
-    
+
     fclose(fichier);
 
     return dataConverted;
 }
-
-/*data_lines DataConvert ( char * lien ){    	//Fonction de conversion des fichiers txt en char **
-
-    //Ouverture du fichier
-    FILE * fichier = fopen(lien, "r");
-
-    //Initialisations
-    data_lines dataConverted;
-    char ** data;
-    dataConverted.data = NULL;
-    dataConverted.sizeColumns, dataConverted.sizeLines, dataConverted.missingLines = 0;
-    int sizeColumns, sizeLines = 0;
-    char currentChar;    					//Caractère lu actuellement
-    int c1 = 1;  							//Compteur de lignes
-    int c2 = 1;  							//Compteur de colonnes
-    int c3 = 0;  							//Compteur annexe
-
-    //Allocation mémoire initiale
-    data = (char **) malloc (c1 * sizeof(char *));
-    data[c1 - 1] = (char *) malloc (c2 * sizeof(char));
-
-    while ( ! feof(fichier)) {  			//Tant qu'on est pas arrivés à la fin du fichier
-
-        //Récupération du caractère lu
-        currentChar = fgetc(fichier);
-        int currentInt = currentChar;
-
-        if (currentInt == 10) {    			//Si on a un saut de ligne (car int "\n" = 10)
-
-            c1++;
-
-            if (c1==2){      
-                c3 = c2;       				//Stockage du nombre de colonnes "normal" du fichier
-                dataConverted.sizeColumns = c3;
-            } else {
-                if (c2 == c3 + 1 || c2 == c3 + 2 || c2 == c3 + 3 || c2 == c3 - 1 || c2 == c3 - 2 || c2 == c3 - 3){    
-											// Présence (ou non) des - dans les données
-                    c3 = c2;     			//Stockage du nouveau nombre "normal" de colonnes
-                    dataConverted.sizeColumns = c3;
-                }
-                if (c2 != c3){
-                    printf("Il manque %d caracteres dans la ligne %d du fichier %s\n", abs(c2-c3), c1-1, lien);
-                    dataConverted.missingLines++;
-                }
-            }
-            c2 = 1;      					//Retour à la première colonne
-
-            //Réallocation mémoire pour la nouvelle ligne
-            data = (char **) realloc (data, c1 * sizeof(char *));
-            data [c1 - 1] = (char *) malloc (c2 * sizeof(char));
-
-        } else {
-
-            c2++;
-
-            //Réallocation mémoire pour la nouvelle colonne
-            data[c1 - 1] = (char *) realloc (data[c1 - 1], c2 * sizeof(char));
-            data[c1 - 1][c2 - 2] = currentChar;
-        }
-    }
-
-    dataConverted.data = data;
-    dataConverted.sizeLines = c1;
-    
-    return dataConverted;
-} */
 
 int errorRate(data_lines data1, data_lines data2) {    //Fonction calculant le taux de perte et d'erreur dans la transmission
 
